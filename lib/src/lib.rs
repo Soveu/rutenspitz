@@ -3,7 +3,10 @@ pub use rutenspitz_macro::arbitrary_stateful_operations;
 lazy_static::lazy_static! {
     pub static ref NON_DEBUG_PANIC_HOOK: () = {
         std::panic::set_hook(Box::new(|panic_info| {
-            if panic_info.payload().is::<crate::OutcomePanic>() {
+            if let Some(outpanic) = panic_info.payload()
+                .downcast_ref::<crate::OutcomePanic>()
+            {
+                eprintln!("{}", outpanic.0);
                 std::process::abort();
             }
         }))
